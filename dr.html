@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timer Website</title>
+    <style>
+        body {
+            background-color: #000; /* الخلفية السوداء */
+            color: #1E90FF; /* اللون الأزرق الغامق */
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            flex-direction: column;
+        }
+        .timer-container {
+            border: 5px solid #1E90FF; /* دائرة حول التايمر */
+            padding: 30px;
+            text-align: center;
+            display: inline-block;
+        }
+        .timer {
+            font-size: 120px; /* تكبير حجم التايمر */
+            font-weight: bold;
+        }
+        .button-container {
+            margin-top: 60px; /* مسافة إضافية بين التايمر والأزرار */
+            text-align: center;
+        }
+        .start-button, .stop-button, .reset-button {
+            background-color: #1E90FF; /* اللون الأزرق الغامق */
+            color: #fff;
+            border: none;
+            padding: 15px 30px;
+            font-size: 24px;
+            cursor: pointer;
+            margin: 5px;
+            transition: background-color 0.3s;
+        }
+        .start-button:hover, .stop-button:hover, .reset-button:hover {
+            background-color: #104E8B; /* تغيير اللون عند التمرير */
+        }
+        .reset-button {
+            background-color: #FF4500; /* لون خاص لزر إعادة التعيين */
+        }
+        .reset-button:hover {
+            background-color: #FF6347; /* تغيير اللون عند التمرير */
+        }
+    </style>
+</head>
+<body>
+    <div class="timer-container">
+        <div class="timer" id="timer">
+            00:00:00
+        </div>
+    </div>
+    <div class="button-container">
+        <button class="start-button" id="startBtn" onclick="startTimer()">Start</button>
+        <button class="stop-button" id="stopBtn" onclick="stopTimer()" style="display: none;">Stop</button>
+        <button class="reset-button" id="resetBtn" onclick="resetTimer()">Reset</button>
+    </div>
+
+    <audio id="sound1" src="sound1.mp3"></audio>
+    <audio id="sound2" src="sound2.mp3"></audio>
+    <audio id="sound3" src="sound3.mp3"></audio>
+
+    <script>
+        let startTime;
+        let running = false;
+        let intervalId;
+        let sounds = [
+            document.getElementById('sound1'),
+            document.getElementById('sound2'),
+            document.getElementById('sound3')
+        ];
+        let soundIndex = 0;
+
+        function playSoundsSequentially() {
+            if (soundIndex < sounds.length) {
+                sounds[soundIndex].play();
+                sounds[soundIndex].onended = function() {
+                    soundIndex++;
+                    playSoundsSequentially();
+                };
+            } else {
+                startTimer(); // بعد انتهاء الأصوات، نبدأ التايمر
+            }
+        }
+
+        function startTimer() {
+            if (!running) {
+                running = true;
+                startTime = Date.now();
+                intervalId = setInterval(updateTimer, 1000);
+                document.getElementById('startBtn').style.display = 'none';
+                document.getElementById('stopBtn').style.display = 'inline';
+            }
+        }
+
+        function stopTimer() {
+            if (running) {
+                running = false;
+                clearInterval(intervalId);
+                document.getElementById('startBtn').style.display = 'inline';
+                document.getElementById('stopBtn').style.display = 'none';
+            }
+        }
+
+        function resetTimer() {
+            running = false;
+            clearInterval(intervalId);
+            document.getElementById('timer').textContent = '00:00:00';
+            document.getElementById('startBtn').style.display = 'inline';
+            document.getElementById('stopBtn').style.display = 'none';
+        }
+
+        function updateTimer() {
+            const now = Date.now();
+            const elapsedTime = now - startTime;
+            const totalSeconds = Math.floor(elapsedTime / 1000);
+            const hours = String(Math.floor(totalSeconds / 3600)).padStart(2, '0');
+            const minutes = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, '0');
+            const seconds = String(totalSeconds % 60).padStart(2, '0');
+            document.getElementById('timer').textContent = `${hours}:${minutes}:${seconds}`;
+        }
+
+        document.getElementById('startBtn').addEventListener('click', function() {
+            playSoundsSequentially();
+        });
+    </script>
+</body>
+</html>
